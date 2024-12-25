@@ -79,28 +79,30 @@ Form.addEventListener('submit', function (event) {
                 });
             }
         };
+        // Add event listener for the "Share" button
         var shareButton = newWindow.document.getElementById("share-button");
         if (shareButton) {
             shareButton.addEventListener("click", function () {
-                var shareData = {
-                    title: "".concat(name, "'s Resume"),
-                    text: 'Check out my resume!',
-                    url: window.location.href // Shareable URL (could be a cloud link)
-                };
-                // Check if the Web Share API is supported
-                if (navigator.share) {
-                    navigator.share(shareData)
-                        .then(function () {
-                        console.log('Resume shared successfully');
-                    })
-                        .catch(function (error) {
-                        console.error('Error sharing resume:', error);
-                    });
-                }
-                else {
-                    // Fallback: Show a message or provide an alternate method if the Web Share API is not supported
-                    alert('Web Share API is not supported on this device/browser. Please copy the URL to share.');
-                }
+                // Create a Blob from the generated resume HTML content
+                var resumeClone = newWindow.document.documentElement.cloneNode(true);
+                // Remove the buttons from the cloned content (optional)
+                var buttons = resumeClone.querySelectorAll("button");
+                buttons.forEach(function (button) { return button.remove(); });
+                // Serialize the modified HTML content
+                var serializer = new XMLSerializer();
+                var resumeHTMLWithoutButtons = serializer.serializeToString(resumeClone);
+                // Create a Blob with the HTML content
+                var blob = new Blob([resumeHTMLWithoutButtons], { type: "text/html" });
+                var url = URL.createObjectURL(blob);
+                // You can now generate a link to this blob URL
+                var shareableLink = url; // This is the link you will share
+                // Display the link to the user
+                alert("Your shareable link: ".concat(shareableLink));
+                // Optionally, open the link in a new tab
+                // window.open(shareableLink, "_blank");
+                // Now you can share this URL with others
+                console.log('Generated Shareable Link:', shareableLink);
+                // (Optional) You could also store the URL in a database or server for later use
             });
         }
     }
